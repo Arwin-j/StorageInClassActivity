@@ -44,6 +44,8 @@ class MainActivity : AppCompatActivity() {
             downloadComic(numberEditText.text.toString())
         }
 
+        loadSavedComic()
+
     }
 
     // Fetches comic from web as JSONObject
@@ -62,12 +64,33 @@ class MainActivity : AppCompatActivity() {
         titleTextView.text = comicObject.getString("title")
         descriptionTextView.text = comicObject.getString("alt")
         Picasso.get().load(comicObject.getString("img")).into(comicImageView)
+        saveComic(comicObject)
     }
+    private fun loadSavedComic() {
+        try {
+            val fileInput = openFileInput("saved_comic.json")
+            val json = fileInput.bufferedReader().use { it.readText() }
+            fileInput.close()
+            val comicObject = JSONObject(json)
+            showComic(comicObject)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 
     // Implement this function
     private fun saveComic(comicObject: JSONObject) {
-
+        try {
+            val fileOutput = openFileOutput("saved_comic.json", MODE_PRIVATE)
+            fileOutput.write(comicObject.toString().toByteArray())
+            fileOutput.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Failed to save comic", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
 
 }
